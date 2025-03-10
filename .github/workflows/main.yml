@@ -29,7 +29,7 @@ jobs:
             open-test-report.html
   publish_artifact:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'filiphr/open-test-reporting-sample' && github.ref == 'refs/heads/main'
+    if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
     needs: linux
     steps:
       - uses: actions/download-artifact@v4
