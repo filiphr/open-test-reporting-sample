@@ -13,7 +13,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Build
-        run: ./mvnw verify --fail-at-end
+        run: ./mvnw -V --no-transfer-progress verify --fail-at-end
       - name: Generate HTML Report
         if: ${{ always() }}
         run: find . -regex '.*/target/open-test-report.xml' -exec jbang org.opentest4j.reporting:open-test-reporting-cli:0.2.1:standalone html-report --output open-test-report.html {} +
