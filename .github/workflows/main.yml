@@ -1,0 +1,44 @@
+name: CI
+
+on: push
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+      - name: Build
+        run: ./mvnw verify --fail-at-end
+      - name: Generate HTML Report
+        if: ${{ always() }}
+        run: find . -regex '.*/target/open-test-report.xml' -exec jbang org.opentest4j.reporting:open-test-reporting-cli:0.2.1:standalone html-report --output open-test-report.html {} +
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: Open Test Reports
+          path: |
+            **/target/junit-jupiter/**
+            open-test-report.html
+  publish_artifact:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository == 'filiphr/open-test-reporting-sample' && github.ref == 'refs/heads/main'
+    needs: linux
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Open Test Reports
+      - name: Azure Upload Report
+        uses: azure/cli@v2
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        with:
+          inlineScript: |
+            az storage blob upload --container-name '$web' --file open-test-report.html --name open-test-report-${{ github.run_id }}.html
+      - name: Write Summary
+        run: echo "Test report available at ${{ vars.STORAGE_BASE_URL }}/open-test-report-${{ github.run_id }}.html" >> $GITHUB_STEP_SUMMARY
+
