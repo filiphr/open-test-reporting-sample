@@ -14,19 +14,9 @@ jobs:
           cache: maven
       - name: Build
         run: ./mvnw -V --no-transfer-progress verify --fail-at-end
-      - name: Get Open Test Report CLI
-        if: ${{ always() }}
-        run: ./mvnw --no-transfer-progress dependency:copy -Dartifact=org.opentest4j.reporting:open-test-reporting-cli:0.2.1:jar:standalone -Dmdep.stripVersion -Dmdep.stripClassifier
-      - name: Generate HTML Report
-        if: ${{ always() }}
-        run: find . -regex '.*/target/open-test-report.xml' -exec java -jar target/dependency/open-test-reporting-cli.jar html-report --output open-test-report.html {} +
-      - uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: Open Test Reports
-          path: |
-            **/target/junit-jupiter/**
-            open-test-report.html
+      - name: Generate Test Report
+        if: always()
+        uses: ./.github/actions/generate-reports
   publish_artifact:
     runs-on: ubuntu-latest
     if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
