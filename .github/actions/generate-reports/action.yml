@@ -5,7 +5,7 @@ inputs:
   open-test-report-cli-version:
     description: 'The version of the Open Test Report CLI to use'
     required: false
-    default: '0.2.1'
+    default: '0.2.4'
 
   report-artifact-name:
     description: 'The name of the report to generate'
