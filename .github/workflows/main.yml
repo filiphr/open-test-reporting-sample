@@ -17,6 +17,8 @@ jobs:
       - name: Generate Test Report
         if: always()
         uses: ./.github/actions/generate-reports
+        with:
+          report-artifact-name: 'Open Test Reports'
   publish_artifact:
     runs-on: ubuntu-latest
     if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
