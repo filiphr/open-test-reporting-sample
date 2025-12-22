@@ -35,12 +35,14 @@ jobs:
         with:
           files: |
             **/target/surefire-reports/*.xml
+          check_name: 'Test Results EnricoMI'
       - name: Publish Test Report mikepenz
         uses: mikepenz/action-junit-report@v5
         if: (!cancelled()) # always run even if the previous step fails
         with:
           report_paths: '**/target/surefire-reports/*.xml'
           truncate_stack_traces: 'false'
+          check_name: 'Test Result mikepenz'
   publish_artifact:
     runs-on: ubuntu-latest
     if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
