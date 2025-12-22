@@ -16,12 +16,19 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Build
+        id: build
         run: ./mvnw -V --no-transfer-progress verify --fail-at-end
       - name: Generate Test Report
         if: always()
         uses: ./.github/actions/generate-reports
         with:
           report-artifact-name: 'Open Test Reports'
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.build.conclusion == 'failure' }}
+        with:
+          name: surefire-test-reports
+          path: '**/target/surefire-reports/*'
       - name: Publish Test Results EnricoMi
         if: (!cancelled())   # important: runs even if tests fail
         uses: EnricoMi/publish-unit-test-result-action@v2
