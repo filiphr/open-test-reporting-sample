@@ -47,6 +47,8 @@ jobs:
           report_paths: '**/target/surefire-reports/*.xml'
           truncate_stack_traces: 'false'
           check_name: 'Test Result mikepenz ${{ matrix.java }}'
+          annotate_only: true
+          group_suite: true
 #  publish_artifact:
 #    runs-on: ubuntu-latest
 #    if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
