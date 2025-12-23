@@ -8,11 +8,15 @@ permissions:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ 21, 25 ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
       - name: Build
@@ -22,12 +26,12 @@ jobs:
         if: always()
         uses: ./.github/actions/generate-reports
         with:
-          report-artifact-name: 'Open Test Reports'
+          report-artifact-name: 'Open Test Reports '${{ matrix.java }}
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.build.conclusion == 'failure' }}
         with:
-          name: surefire-test-reports
+          name: surefire-test-reports-${{ matrix.java }}
           path: '**/target/surefire-reports/*'
       - name: Publish Test Results EnricoMi
         if: (!cancelled())   # important: runs even if tests fail
@@ -35,29 +39,29 @@ jobs:
         with:
           files: |
             **/target/surefire-reports/*.xml
-          check_name: 'Test Results EnricoMI'
+          check_name: 'Test Results EnricoMI '${{ matrix.java }}
       - name: Publish Test Report mikepenz
         uses: mikepenz/action-junit-report@v5
         if: (!cancelled()) # always run even if the previous step fails
         with:
           report_paths: '**/target/surefire-reports/*.xml'
           truncate_stack_traces: 'false'
-          check_name: 'Test Result mikepenz'
-  publish_artifact:
-    runs-on: ubuntu-latest
-    if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
-    needs: linux
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: Open Test Reports
-      - name: Azure Upload Report
-        uses: azure/cli@v2
-        env:
-          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-        with:
-          inlineScript: |
-            az storage blob upload --container-name '$web' --file open-test-report.html --name open-test-report-${{ github.run_id }}.html
-      - name: Write Summary
-        run: echo "Test report available at ${{ vars.STORAGE_BASE_URL }}/open-test-report-${{ github.run_id }}.html" >> $GITHUB_STEP_SUMMARY
+          check_name: 'Test Result mikepenz '${{ matrix.java }}
+#  publish_artifact:
+#    runs-on: ubuntu-latest
+#    if: (success() || failure()) && github.repository == 'filiphr/open-test-reporting-sample'
+#    needs: linux
+#    steps:
+#      - uses: actions/download-artifact@v4
+#        with:
+#          name: Open Test Reports
+#      - name: Azure Upload Report
+#        uses: azure/cli@v2
+#        env:
+#          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+#        with:
+#          inlineScript: |
+#            az storage blob upload --container-name '$web' --file open-test-report.html --name open-test-report-${{ github.run_id }}.html
+#      - name: Write Summary
+#        run: echo "Test report available at ${{ vars.STORAGE_BASE_URL }}/open-test-report-${{ github.run_id }}.html" >> $GITHUB_STEP_SUMMARY
 
