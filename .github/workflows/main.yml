@@ -47,7 +47,7 @@ jobs:
           report_paths: '**/target/surefire-reports/*.xml'
           truncate_stack_traces: 'false'
           check_name: 'Test Result mikepenz ${{ matrix.java }}'
-          annotate_only: true
+          annotate_only: false
           group_suite: true
 #  publish_artifact:
 #    runs-on: ubuntu-latest
