@@ -41,7 +41,7 @@ jobs:
             **/target/surefire-reports/*.xml
           check_name: 'Test Results EnricoMI ${{ matrix.java }}'
       - name: Publish Test Report mikepenz
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         if: (!cancelled()) # always run even if the previous step fails
         with:
           report_paths: '**/target/surefire-reports/*.xml'
