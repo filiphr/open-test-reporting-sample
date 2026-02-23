@@ -21,7 +21,7 @@ jobs:
           cache: maven
       - name: Build
         id: build
-        run: ./mvnw -V --no-transfer-progress verify --fail-at-end -Dmaven.test.failure.ignore=true
+        run: ./mvnw -V --no-transfer-progress verify --fail-at-end
       - name: Generate Test Report
         if: always()
         uses: ./.github/actions/generate-reports
